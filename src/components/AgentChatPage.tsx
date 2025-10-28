@@ -783,7 +783,7 @@ ${agent.description}
         </div>
 
         {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto p-8 bg-gradient-to-b from-gray-900/50 to-gray-800/80">
+        <div className="flex-1 overflow-y-auto p-8 pb-32 bg-gradient-to-b from-gray-900/50 to-gray-800/80">
           <div className="max-w-4xl mx-auto space-y-6">
             {messages.map((message) => (
               <div key={message.id} className={`flex items-start ${message.type === 'user' ? 'justify-end' : 'justify-start'} ${isShareMode ? 'pl-12' : ''}`}>
@@ -930,10 +930,15 @@ ${agent.description}
           </div>
         </div>
 
-        {/* Input Area */}
-        <div className={`bg-gray-800/90 backdrop-blur-sm border-t border-gray-700/50 p-8 shadow-2xl ${isShareMode ? 'pb-24' : ''}`}>
+      </div>
+
+      {/* Fixed Input Area */}
+      <div className={`fixed bottom-0 bg-gray-800/95 backdrop-blur-md border-t border-gray-700/50 shadow-2xl transition-all duration-300 ease-in-out z-30 ${
+        isSidebarCollapsed ? 'left-16' : 'left-64'
+      } right-0 ${isShareMode ? 'bottom-16' : 'bottom-0'}`}>
+        <div className="p-6">
           <div className="max-w-4xl mx-auto">
-            <div className="relative bg-gray-700/95 backdrop-blur-sm border border-gray-600/50 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.01]">
+            <div className="relative bg-gray-700/95 backdrop-blur-sm border border-gray-600/50 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.005]">
               <div className="flex items-end p-4 space-x-3">
                 <FileUploadButton />
                 <div className="flex-1 relative">
@@ -947,7 +952,7 @@ ${agent.description}
                     rows={1}
                   />
                 </div>
-                <button 
+                <button
                   onClick={handleSendMessage}
                   disabled={!inputValue.trim() || isShareMode}
                   className="flex-shrink-0 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-full transition-all duration-200 hover:scale-105 disabled:scale-100 shadow-xl disabled:shadow-none"
