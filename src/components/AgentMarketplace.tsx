@@ -193,6 +193,11 @@ export default function AgentMarketplace({ onBack, onStartAgent, historySessions
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
 
+  // Tab栏吸顶状态
+  const [isTabSticky, setIsTabSticky] = useState(false);
+  const tabBarRef = React.useRef<HTMLDivElement>(null);
+  const tabBarPlaceholderRef = React.useRef<HTMLDivElement>(null);
+
   // 历史会话操作状态
   const [activeSessionMenu, setActiveSessionMenu] = useState<string | null>(null);
   const [showRenameModal, setShowRenameModal] = useState(false);
@@ -355,6 +360,32 @@ export default function AgentMarketplace({ onBack, onStartAgent, historySessions
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, [activeSessionMenu]);
+
+  // Tab栏吸顶功能
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!tabBarRef.current) return;
+
+      const tabBarRect = tabBarRef.current.getBoundingClientRect();
+      const tabBarOffset = tabBarPlaceholderRef.current?.offsetTop || 0;
+
+      // 计算侧边栏宽度，用于计算正确的滚动位置
+      const sidebarWidth = isSidebarCollapsed ? 64 : 256;
+
+      // 当tab栏滚出视线时吸顶
+      if (window.scrollY > tabBarOffset) {
+        setIsTabSticky(true);
+      } else {
+        setIsTabSticky(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    // 初始化时检查一次
+    handleScroll();
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isSidebarCollapsed]);
 
   const formatSessionTime = (timestamp: Date) => {
     const now = new Date();
@@ -787,8 +818,21 @@ export default function AgentMarketplace({ onBack, onStartAgent, historySessions
           </div>
         )}
 
+        {/* Category Tabs Placeholder - 占位元素，防止吸顶时内容跳动 */}
+        <div ref={tabBarPlaceholderRef} style={{ height: isTabSticky ? '73px' : '0' }}></div>
+
         {/* Category Tabs */}
-        <div className="bg-gray-800/90 backdrop-blur-sm border-b border-gray-700/50 px-8 py-6 shadow-sm">
+        <div
+          ref={tabBarRef}
+          className={`bg-gray-800/90 backdrop-blur-sm border-b border-gray-700/50 px-8 py-6 shadow-sm transition-all duration-300 ${
+            isTabSticky
+              ? 'fixed top-0 left-0 right-0 z-30 shadow-2xl'
+              : 'relative'
+          }`}
+          style={{
+            marginLeft: isTabSticky ? (isSidebarCollapsed ? '64px' : '256px') : '0'
+          }}
+        >
           <div className="flex space-x-8">
             {categories.map((category) => (
               <button
