@@ -221,18 +221,19 @@ export default function AgentMarketplace({ onBack, onStartAgent, historySessions
     }
   };
 
-  // 处理登出
+  // 处理登出 - 与全局登录系统集成
   const handleLogout = () => {
-    clearLoginState();
     showToastMessage('已退出登录');
-    // 触发登出事件，让父组件处理
+    // 触发全局登出事件，由App.tsx统一处理状态清除和页面跳转
     window.dispatchEvent(new CustomEvent('userLogout'));
   };
 
-  // 处理登录
+  // 处理登录 - 跳转到登录页
   const handleLogin = () => {
-    // 触发登录事件，让父组件处理
-    window.dispatchEvent(new CustomEvent('needLogin'));
+    // 触发全局登录事件，让App.tsx处理页面跳转
+    window.dispatchEvent(new CustomEvent('needLogin', {
+      detail: { source: 'agent-marketplace' }
+    }));
   };
 
   // 筛选逻辑优化：支持"全部"选项和搜索自动切换
@@ -407,25 +408,32 @@ export default function AgentMarketplace({ onBack, onStartAgent, historySessions
       <div className={`fixed left-0 top-0 h-screen bg-gray-800/90 backdrop-blur-xl border-r border-gray-700/50 z-10 transition-all duration-300 ease-in-out shadow-xl flex flex-col ${
         isSidebarCollapsed ? 'w-16' : 'w-64'
       }`}>
-        {/* Toggle Button */}
-        <div className="absolute -right-3 top-4 z-20">
-          <button
-            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="w-7 h-7 bg-gray-700/90 backdrop-blur-sm border border-gray-600/50 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
-          >
-            {isSidebarCollapsed ? (
-              <Menu className="h-3 w-3 text-gray-300" />
-            ) : (
-              <X className="h-3 w-3 text-gray-300" />
-            )}
-          </button>
-        </div>
-
         {/* Scrollable Content Area */}
-        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-          <div className={`flex items-center mb-8 cursor-pointer hover:opacity-80 transition-opacity ${
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          {/* Toggle Button - 移动到logo上方 */}
+          <div className={`flex items-center justify-center pt-4 pb-2 ${
+            isSidebarCollapsed ? 'px-3' : 'px-6'
+          }`}>
+            <button
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              title={isSidebarCollapsed ? '展开侧边栏' : '收起侧边栏'}
+              className="w-8 h-8 bg-gray-700/90 backdrop-blur-sm border border-gray-600/50 rounded-lg flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 hover:bg-gray-600/90"
+            >
+              {isSidebarCollapsed ? (
+                <Menu className="h-4 w-4 text-gray-300" />
+              ) : (
+                <X className="h-4 w-4 text-gray-300" />
+              )}
+            </button>
+          </div>
+
+          <div className={`transition-all duration-300 ${
+            isSidebarCollapsed ? 'px-3 pb-6' : 'px-6 pb-6'
+          }`}>
+          {/* Logo区域 */}
+          <div className={`flex items-center mb-6 cursor-pointer hover:opacity-80 transition-opacity ${
             isSidebarCollapsed ? 'justify-center' : ''
-          }`} onClick={onBack} title={isSidebarCollapsed ? 'RiskAgent' : ''}>
+          }`} onClick={onBack} title={isSidebarCollapsed ? 'RiskAgent - 返回首页' : '返回首页'}>
             <img
               src="/Vector copy.png"
               alt="RiskAgent Logo"
@@ -436,34 +444,36 @@ export default function AgentMarketplace({ onBack, onStartAgent, historySessions
             {!isSidebarCollapsed && <span className="text-xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">RiskAgent</span>}
           </div>
           
+          {/* 功能按钮区 */}
           <nav className="space-y-2">
             <button
               onClick={onBack}
               title={isSidebarCollapsed ? '新会话' : ''}
               className={`group relative flex items-center w-full text-gray-200 hover:bg-blue-900/30 hover:text-blue-400 rounded-xl transition-all duration-200 hover:scale-105 ${
-                isSidebarCollapsed ? 'justify-center px-3 py-3' : 'px-4 py-3'
+                isSidebarCollapsed ? 'justify-center p-3' : 'px-4 py-3'
               }`}
             >
-              <MessageSquare className={`h-5 w-5 transition-all duration-200 ${
-                isSidebarCollapsed ? '' : 'mr-3'
+              <MessageSquare className={`flex-shrink-0 transition-all duration-200 ${
+                isSidebarCollapsed ? 'h-5 w-5' : 'h-5 w-5 mr-3'
               }`} />
-              {!isSidebarCollapsed && '新会话'}
+              {!isSidebarCollapsed && <span className="truncate">新会话</span>}
             </button>
             <div
               title={isSidebarCollapsed ? 'Agent广场' : ''}
               className={`group relative flex items-center w-full bg-gradient-to-r from-blue-900/30 to-indigo-900/30 text-blue-400 rounded-xl border border-blue-600/50 shadow-sm ${
-                isSidebarCollapsed ? 'justify-center px-3 py-3' : 'px-4 py-3'
+                isSidebarCollapsed ? 'justify-center p-3' : 'px-4 py-3'
               }`}
             >
-              <Grid3X3 className={`h-5 w-5 transition-all duration-200 ${
-                isSidebarCollapsed ? '' : 'mr-3'
+              <Grid3X3 className={`flex-shrink-0 transition-all duration-200 ${
+                isSidebarCollapsed ? 'h-5 w-5' : 'h-5 w-5 mr-3'
               }`} />
-              {!isSidebarCollapsed && 'Agent广场'}
+              {!isSidebarCollapsed && <span className="truncate">Agent广场</span>}
             </div>
           </nav>
+          </div>
 
           {!isSidebarCollapsed && (
-          <>
+          <div className="px-6 pb-6">
             <div className="mt-8 transition-opacity duration-300">
             <h3 className="text-sm font-semibold text-gray-400 mb-4">常用Agent</h3>
             <div className="space-y-2">
@@ -597,7 +607,7 @@ export default function AgentMarketplace({ onBack, onStartAgent, historySessions
               )}
             </div>
           </div>
-            </>
+          </div>
           )}
         </div>
 
@@ -611,10 +621,10 @@ export default function AgentMarketplace({ onBack, onStartAgent, historySessions
                 {isSidebarCollapsed ? (
                   <button
                     onClick={handleLogout}
-                    title={`${username || '用户'} - 退出登录`}
-                    className="w-full flex items-center justify-center p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-lg hover:scale-105 transition-all duration-200 hover:shadow-xl"
+                    title={`${username || '用户'} - 点击退出登录`}
+                    className="w-full aspect-square flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-lg hover:scale-105 transition-all duration-200 hover:shadow-xl hover:from-blue-600 hover:to-purple-700"
                   >
-                    <User className="h-5 w-5 text-white" />
+                    <User className="h-5 w-5 text-white flex-shrink-0" />
                   </button>
                 ) : (
                   <div className="flex items-center">
@@ -637,15 +647,15 @@ export default function AgentMarketplace({ onBack, onStartAgent, historySessions
             ) : (
               <button
                 onClick={handleLogin}
-                title={isSidebarCollapsed ? '登录' : ''}
+                title={isSidebarCollapsed ? '点击登录' : ''}
                 className={`w-full flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl transition-all duration-200 hover:scale-105 shadow-lg font-medium ${
-                  isSidebarCollapsed ? 'p-2' : 'px-4 py-3'
+                  isSidebarCollapsed ? 'aspect-square p-3' : 'px-4 py-3'
                 }`}
               >
-                <User className={`h-5 w-5 ${
-                  isSidebarCollapsed ? '' : 'mr-2'
+                <User className={`flex-shrink-0 ${
+                  isSidebarCollapsed ? 'h-5 w-5' : 'h-5 w-5 mr-2'
                 }`} />
-                {!isSidebarCollapsed && '登录'}
+                {!isSidebarCollapsed && <span className="truncate">登录</span>}
               </button>
             )}
           </div>

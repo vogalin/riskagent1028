@@ -132,7 +132,7 @@ function App() {
     });
   };
 
-  // 监听Agent切换事件
+  // 监听Agent切换和登录事件
   useEffect(() => {
     const handleSwitchAgent = (event: CustomEvent) => {
       const targetAgent = event.detail;
@@ -146,21 +146,38 @@ function App() {
     };
 
     const handleNeedLogin = (event: CustomEvent) => {
-      const { agent } = event.detail;
-      setSelectedAgent(agent);
+      const detail = event.detail || {};
+      // 如果有agent信息，保存它
+      if (detail.agent) {
+        setSelectedAgent(detail.agent);
+      }
+      // 跳转到登录页
       setCurrentPage('login');
+    };
+
+    const handleUserLogout = () => {
+      // 处理全局登出
+      setIsLoggedIn(false);
+      setUsername('');
+      clearLoginState();
+      setSelectedAgent(null);
+      setCurrentPage('home');
+      setInputValue('');
     };
 
     const handleNavigateToAgentMarketplace = () => {
       setCurrentPage('agent-marketplace');
     };
+
     window.addEventListener('switchAgent', handleSwitchAgent as EventListener);
     window.addEventListener('needLogin', handleNeedLogin as EventListener);
+    window.addEventListener('userLogout', handleUserLogout as EventListener);
     window.addEventListener('navigateToAgentMarketplace', handleNavigateToAgentMarketplace as EventListener);
 
     return () => {
       window.removeEventListener('switchAgent', handleSwitchAgent as EventListener);
       window.removeEventListener('needLogin', handleNeedLogin as EventListener);
+      window.removeEventListener('userLogout', handleUserLogout as EventListener);
       window.removeEventListener('navigateToAgentMarketplace', handleNavigateToAgentMarketplace as EventListener);
     };
   }, [isLoggedIn]);
