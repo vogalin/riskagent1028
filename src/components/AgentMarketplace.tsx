@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, MessageSquare, Grid3x3 as Grid3X3, Shield, Search, Menu, X, Layout, MoreVertical, Trash2, Edit2, Link2, Check, AlertCircle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Grid3x3 as Grid3X3, Shield, Search, Menu, X, Layout, MoreVertical, Trash2, Edit2, Link2, Check, AlertCircle, CheckCircle, User, LogOut } from 'lucide-react';
 
 // 全局登录状态管理
 const STORAGE_KEYS = {
@@ -204,7 +204,31 @@ export default function AgentMarketplace({ onBack, onStartAgent, historySessions
   const [toastMessage, setToastMessage] = useState('');
 
   // 获取当前登录状态
-  const { isLoggedIn } = getStoredLoginState();
+  const { isLoggedIn, username } = getStoredLoginState();
+
+  // 清除登录状态
+  const clearLoginState = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEYS.IS_LOGGED_IN);
+      localStorage.removeItem(STORAGE_KEYS.USERNAME);
+    } catch (error) {
+      console.error('清除登录状态失败:', error);
+    }
+  };
+
+  // 处理登出
+  const handleLogout = () => {
+    clearLoginState();
+    showToastMessage('已退出登录');
+    // 触发登出事件，让父组件处理
+    window.dispatchEvent(new CustomEvent('userLogout'));
+  };
+
+  // 处理登录
+  const handleLogin = () => {
+    // 触发登录事件，让父组件处理
+    window.dispatchEvent(new CustomEvent('needLogin'));
+  };
 
   // 筛选逻辑优化：支持"全部"选项和搜索自动切换
   const filteredAgents = agentData.filter(agent => {
@@ -526,6 +550,37 @@ export default function AgentMarketplace({ onBack, onStartAgent, historySessions
                 </div>
               )}
             </div>
+          </div>
+
+          {/* User Info Section */}
+          <div className="mt-8 border-t border-gray-700/50 pt-6">
+            {isLoggedIn ? (
+              <div className="transition-opacity duration-300">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-3 shadow-lg flex-shrink-0">
+                    <User className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-white truncate">{username || '用户'}</div>
+                    <button
+                      onClick={handleLogout}
+                      className="text-xs text-blue-400 hover:text-blue-300 transition-colors font-medium inline-flex items-center space-x-1 mt-1 group"
+                    >
+                      <LogOut className="h-3 w-3 group-hover:scale-110 transition-transform" />
+                      <span>退出登录</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={handleLogin}
+                className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl transition-all duration-200 hover:scale-105 shadow-lg font-medium"
+              >
+                <User className="h-5 w-5 mr-2" />
+                登录
+              </button>
+            )}
           </div>
             </>
           )}
