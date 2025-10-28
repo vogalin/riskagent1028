@@ -373,7 +373,7 @@ export default function AgentMarketplace({ onBack, onStartAgent, historySessions
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       {/* Sidebar */}
-      <div className={`fixed left-0 top-0 h-full bg-gray-800/90 backdrop-blur-xl border-r border-gray-700/50 z-10 transition-all duration-300 ease-in-out shadow-xl ${
+      <div className={`fixed left-0 top-0 h-screen bg-gray-800/90 backdrop-blur-xl border-r border-gray-700/50 z-10 transition-all duration-300 ease-in-out shadow-xl flex flex-col ${
         isSidebarCollapsed ? 'w-16' : 'w-64'
       }`}>
         {/* Toggle Button */}
@@ -390,7 +390,8 @@ export default function AgentMarketplace({ onBack, onStartAgent, historySessions
           </button>
         </div>
 
-        <div className="p-6">
+        {/* Scrollable Content Area */}
+        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
           <div className={`flex items-center mb-8 cursor-pointer hover:opacity-80 transition-opacity ${
             isSidebarCollapsed ? 'justify-center' : ''
           }`} onClick={onBack}>
@@ -468,7 +469,7 @@ export default function AgentMarketplace({ onBack, onStartAgent, historySessions
 
           <div className="mt-8">
             <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">历史会话</h3>
-            <div className="space-y-1.5 max-h-96 overflow-y-auto custom-scrollbar pr-1">
+            <div className="space-y-1.5 overflow-y-auto custom-scrollbar pr-1">
               {historySessions.map((session) => (
                 <div
                   key={session.id}
@@ -551,40 +552,44 @@ export default function AgentMarketplace({ onBack, onStartAgent, historySessions
               )}
             </div>
           </div>
-
-          {/* User Info Section */}
-          <div className="mt-8 border-t border-gray-700/50 pt-6">
-            {isLoggedIn ? (
-              <div className="transition-opacity duration-300">
-                <div className="flex items-center">
-                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-3 shadow-lg flex-shrink-0">
-                    <User className="h-5 w-5 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold text-white truncate">{username || '用户'}</div>
-                    <button
-                      onClick={handleLogout}
-                      className="text-xs text-blue-400 hover:text-blue-300 transition-colors font-medium inline-flex items-center space-x-1 mt-1 group"
-                    >
-                      <LogOut className="h-3 w-3 group-hover:scale-110 transition-transform" />
-                      <span>退出登录</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <button
-                onClick={handleLogin}
-                className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl transition-all duration-200 hover:scale-105 shadow-lg font-medium"
-              >
-                <User className="h-5 w-5 mr-2" />
-                登录
-              </button>
-            )}
-          </div>
             </>
           )}
         </div>
+
+        {/* User Info Section - Sticky Bottom */}
+        {!isSidebarCollapsed && (
+          <div className="flex-shrink-0 border-t border-gray-700/50 bg-gray-800/95 backdrop-blur-sm">
+            <div className="p-6">
+              {isLoggedIn ? (
+                <div className="transition-opacity duration-300">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-3 shadow-lg flex-shrink-0">
+                      <User className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-white truncate">{username || '用户'}</div>
+                      <button
+                        onClick={handleLogout}
+                        className="text-xs text-blue-400 hover:text-blue-300 transition-colors font-medium inline-flex items-center space-x-1 mt-1 group"
+                      >
+                        <LogOut className="h-3 w-3 group-hover:scale-110 transition-transform" />
+                        <span>退出登录</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={handleLogin}
+                  className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl transition-all duration-200 hover:scale-105 shadow-lg font-medium"
+                >
+                  <User className="h-5 w-5 mr-2" />
+                  登录
+                </button>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Main Content */}
