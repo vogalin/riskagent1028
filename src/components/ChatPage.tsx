@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Shield, MessageSquare, Grid3X3, Paperclip, Copy, Share, CheckCircle, AlertCircle, X, User, Bot, Menu } from 'lucide-react';
+import { ArrowLeft, Shield, MessageSquare, Grid3X3, Paperclip, Copy, Share, CheckCircle, AlertCircle, X, User, Bot, Menu, Clock } from 'lucide-react';
 import FileUploadButton from './FileUploadButton';
+import { renderMarkdown, formatTimestamp, generateSampleResponses } from '../utils/markdownRenderer';
 
 // 全局登录状态管理
 const STORAGE_KEYS = {
@@ -169,47 +170,8 @@ export default function ChatPage({ onBack, initialMessage, username, onLogout, h
   };
 
   const generateAIResponse = (userInput: string) => {
-    const responses = [
-      `## 数据分析结果
-
-基于您的查询"${userInput}"，我为您提供以下分析：
-
-### 核心指标
-- **风险等级**：中等
-- **置信度**：85%
-- **建议操作**：加强监控
-
-### 详细说明
-根据历史数据模式分析，该查询涉及的对象存在一定风险特征，建议采取相应的风控措施。`,
-
-      `## 查询结果摘要
-
-针对您的问题"${userInput}"，系统分析如下：
-
-### 数据概览
-- **匹配记录数**：156条
-- **异常标记**：3个
-- **风险评分**：7.2/10
-
-### 建议措施
-1. 加强实时监控
-2. 设置预警阈值
-3. 定期复查评估`,
-
-      `## 智能分析报告
-
-查询内容：${userInput}
-
-### 分析维度
-- **时间范围**：最近30天
-- **数据来源**：多渠道整合
-- **分析模型**：机器学习算法
-
-### 结论
-系统检测到相关模式，建议进一步调查和验证。`
-    ];
-
-    return responses[Math.floor(Math.random() * responses.length)];
+    const sampleResponses = generateSampleResponses();
+    return sampleResponses[Math.floor(Math.random() * sampleResponses.length)].content;
   };
 
   const handleSendMessage = () => {
@@ -413,28 +375,6 @@ export default function ChatPage({ onBack, initialMessage, username, onLogout, h
     setFeedbackText('');
   };
 
-  const renderMarkdown = (content: string) => {
-    // 简单的Markdown渲染
-    let html = content
-      .replace(/### (.*$)/gm, '<h3 class="text-lg font-semibold text-white mb-3 mt-6">$1</h3>')
-      .replace(/## (.*$)/gm, '<h2 class="text-xl font-bold text-white mb-4 mt-6">$1</h2>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
-      .replace(/- (.*$)/gm, '<li class="ml-4">$1</li>')
-      .replace(/^\|(.+)\|$/gm, (match, content) => {
-        const cells = content.split('|').map((cell: string) => cell.trim()).filter((cell: string) => cell);
-        return `<tr>${cells.map((cell: string) => `<td class="px-4 py-2 border-b border-gray-200">${cell}</td>`).join('')}</tr>`;
-      });
-
-    // 处理表格
-    if (html.includes('<tr>')) {
-      html = html.replace(/(<tr>.*<\/tr>)/gs, '<table class="w-full border-collapse bg-gray-700 rounded-lg overflow-hidden shadow-sm mb-4"><tbody>$1</tbody></table>');
-    }
-
-    // 处理列表
-    html = html.replace(/(<li>.*<\/li>)/gs, '<ul class="list-disc list-inside space-y-1 mb-4 text-gray-300">$1</ul>');
-
-    return html;
-  };
 
   const renderChart = () => (
     <div className="bg-gradient-to-br from-blue-900/30 to-indigo-900/30 rounded-xl p-6 mb-6 border border-blue-600/50">
@@ -720,12 +660,18 @@ export default function ChatPage({ onBack, initialMessage, username, onLogout, h
                 
                 {message.type === 'user' ? (
                   // User Message
-                  <div className="flex items-end space-x-3 max-w-2xl">
-                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-4 rounded-2xl rounded-br-md shadow-xl">
-                      <p className="text-sm leading-relaxed font-medium">{message.content}</p>
+                  <div className="flex flex-col items-end max-w-2xl">
+                    <div className="flex items-end space-x-3">
+                      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-4 rounded-2xl rounded-br-md shadow-xl">
+                        <p className="text-sm leading-relaxed font-medium">{message.content}</p>
+                      </div>
+                      <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                        <User className="h-4 w-4 text-white" />
+                      </div>
                     </div>
-                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
-                      <User className="h-4 w-4 text-white" />
+                    <div className="flex items-center mt-2 mr-2 text-xs text-gray-400">
+                      <Clock className="h-3 w-3 mr-1" />
+                      <span>{formatTimestamp(message.timestamp)}</span>
                     </div>
                   </div>
                 ) : (
@@ -754,10 +700,6 @@ export default function ChatPage({ onBack, initialMessage, username, onLogout, h
                         </div>
                       ) : (
                         <div className="space-y-6">
-                          {/* Timestamp */}
-                          <div className="text-right text-xs text-gray-400 font-medium">
-                            {message.timestamp.toLocaleString('zh-CN')}
-                          </div>
 
                           {/* Query Info */}
                           {message.queryInfo && (
@@ -779,10 +721,16 @@ export default function ChatPage({ onBack, initialMessage, username, onLogout, h
                           {/* Chart */}
                           {message.hasChart && renderChart()}
 
+                          {/* Timestamp */}
+                          <div className="flex items-center text-xs text-gray-400 pt-2 border-t border-gray-600/30">
+                            <Clock className="h-3 w-3 mr-1" />
+                            <span>{formatTimestamp(message.timestamp)}</span>
+                          </div>
+
                           {/* Action Buttons */}
                           {/* Action Buttons - 只在用户输入后的AI回复中显示，排除引导语 */}
                           {message.type === 'ai' && !message.isGenerating && messages.length > 1 && (
-                            <div className="flex items-center space-x-6 pt-6 border-t border-gray-600/50">
+                            <div className="flex items-center space-x-6 pt-4 border-t border-gray-600/50">
                             <button 
                               onClick={() => handleCopy(message.content)}
                               className="flex items-center space-x-2 text-gray-300 hover:text-blue-400 transition-all duration-200 group hover:scale-105"

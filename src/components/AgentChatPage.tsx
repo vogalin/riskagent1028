@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Shield, MessageSquare, Grid3X3, Paperclip, Copy, Share, CheckCircle, AlertCircle, X, User, Bot, Menu, MoreVertical, Trash2, Edit2, Link2, Check } from 'lucide-react';
+import { ArrowLeft, Shield, MessageSquare, Grid3X3, Paperclip, Copy, Share, CheckCircle, AlertCircle, X, User, Bot, Menu, MoreVertical, Trash2, Edit2, Link2, Check, Clock } from 'lucide-react';
 import FileUploadButton from './FileUploadButton';
+import { renderMarkdown, formatTimestamp, generateSampleResponses } from '../utils/markdownRenderer';
 
 // 全局登录状态管理
 const STORAGE_KEYS = {
@@ -183,53 +184,8 @@ ${agent.description}
   };
 
   const generateAIResponse = (userInput: string) => {
-    const responses = [
-      `## 分析结果
-
-基于您的查询"${userInput}"，我为您提供以下专业分析：
-
-### 核心发现
-- **风险等级**：中等
-- **置信度**：85%
-- **建议操作**：加强监控
-
-### 详细说明
-根据${agent.name}的专业能力，该查询涉及的对象存在一定风险特征，建议采取相应的风控措施。
-
-### 后续建议
-1. 持续监控相关指标
-2. 设置预警阈值
-3. 定期复查评估`,
-
-      `## ${agent.name}分析报告
-
-针对您的问题"${userInput}"，系统分析如下：
-
-### 数据概览
-- **匹配记录数**：156条
-- **异常标记**：3个
-- **风险评分**：7.2/10
-
-### 专业建议
-基于${agent.category}领域的专业知识：
-1. 加强实时监控
-2. 优化风控策略
-3. 建立预警机制`,
-
-      `## 智能分析结果
-
-查询内容：${userInput}
-
-### 分析维度
-- **时间范围**：最近30天
-- **数据来源**：${agent.category}相关数据
-- **分析模型**：${agent.name}专用算法
-
-### 结论
-系统检测到相关模式，建议进一步调查和验证。专业的${agent.category}分析表明需要重点关注。`
-    ];
-
-    return responses[Math.floor(Math.random() * responses.length)];
+    const sampleResponses = generateSampleResponses();
+    return sampleResponses[Math.floor(Math.random() * sampleResponses.length)].content;
   };
 
   const handleSendMessage = () => {
@@ -517,25 +473,6 @@ ${agent.description}
     setFeedbackText('');
   };
 
-  const renderMarkdown = (content: string) => {
-    let html = content
-      .replace(/### (.*$)/gm, '<h3 class="text-lg font-semibold text-white mb-3 mt-6">$1</h3>')
-      .replace(/## (.*$)/gm, '<h2 class="text-xl font-bold text-white mb-4 mt-6">$1</h2>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
-      .replace(/- (.*$)/gm, '<li class="ml-4">$1</li>')
-      .replace(/^\|(.+)\|$/gm, (match, content) => {
-        const cells = content.split('|').map((cell: string) => cell.trim()).filter((cell: string) => cell);
-        return `<tr>${cells.map((cell: string) => `<td class="px-4 py-2 border-b border-gray-200">${cell}</td>`).join('')}</tr>`;
-      });
-
-    if (html.includes('<tr>')) {
-      html = html.replace(/(<tr>.*<\/tr>)/gs, '<table class="w-full border-collapse bg-gray-700 rounded-lg overflow-hidden shadow-sm mb-4"><tbody>$1</tbody></table>');
-    }
-
-    html = html.replace(/(<li>.*<\/li>)/gs, '<ul class="list-disc list-inside space-y-1 mb-4 text-gray-300">$1</ul>');
-
-    return html;
-  };
 
   const feedbackReasons = [
     '没有理解问题',
@@ -872,12 +809,18 @@ ${agent.description}
                 
                 {message.type === 'user' ? (
                   // User Message
-                  <div className="flex items-end space-x-3 max-w-2xl">
-                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-4 rounded-2xl rounded-br-md shadow-xl">
-                      <p className="text-sm leading-relaxed font-medium">{message.content}</p>
+                  <div className="flex flex-col items-end max-w-2xl">
+                    <div className="flex items-end space-x-3">
+                      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-4 rounded-2xl rounded-br-md shadow-xl">
+                        <p className="text-sm leading-relaxed font-medium">{message.content}</p>
+                      </div>
+                      <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                        <User className="h-4 w-4 text-white" />
+                      </div>
                     </div>
-                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
-                      <User className="h-4 w-4 text-white" />
+                    <div className="flex items-center mt-2 mr-2 text-xs text-gray-400">
+                      <Clock className="h-3 w-3 mr-1" />
+                      <span>{formatTimestamp(message.timestamp)}</span>
                     </div>
                   </div>
                 ) : (
@@ -906,10 +849,6 @@ ${agent.description}
                         </div>
                       ) : (
                         <div className="space-y-6">
-                          {/* Timestamp */}
-                          <div className="text-right text-xs text-gray-400 font-medium">
-                            {message.timestamp.toLocaleString('zh-CN')}
-                          </div>
 
                           {/* Query Info */}
                           {message.queryInfo && (
@@ -928,10 +867,16 @@ ${agent.description}
                             dangerouslySetInnerHTML={{ __html: renderMarkdown(message.content) }}
                           />
 
+                          {/* Timestamp */}
+                          <div className="flex items-center text-xs text-gray-400 pt-2 border-t border-gray-600/30">
+                            <Clock className="h-3 w-3 mr-1" />
+                            <span>{formatTimestamp(message.timestamp)}</span>
+                          </div>
+
                           {/* Action Buttons */}
                           {/* Action Buttons - 只在用户输入后的AI回复中显示，排除引导语 */}
                           {message.type === 'ai' && !message.isGenerating && messages.length > 1 && (
-                            <div className="flex items-center space-x-6 pt-6 border-t border-gray-600/50">
+                            <div className="flex items-center space-x-6 pt-4 border-t border-gray-600/50">
                             <button 
                               onClick={() => handleCopy(message.content)}
                               className="flex items-center space-x-2 text-gray-300 hover:text-blue-400 transition-all duration-200 group hover:scale-105"
