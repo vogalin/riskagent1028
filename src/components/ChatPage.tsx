@@ -418,11 +418,11 @@ export default function ChatPage({ onBack, initialMessage, username, onLogout, h
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex">
       {/* Sidebar */}
-      <div className={`bg-gray-800/90 backdrop-blur-xl border-r border-gray-700/50 flex flex-col shadow-2xl transition-all duration-300 ease-in-out ${
+      <div className={`fixed left-0 top-0 bottom-0 h-screen bg-gray-800/90 backdrop-blur-xl border-r border-gray-700/50 flex flex-col shadow-2xl transition-all duration-300 ease-in-out z-40 ${
         isSidebarCollapsed ? 'w-16' : 'w-64'
       }`}>
         {/* Toggle Button */}
-        <div className="absolute left-4 top-4 z-20">
+        <div className="absolute left-4 top-4 z-50">
           <button
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
             className="w-7 h-7 bg-gray-700/90 backdrop-blur-sm hover:bg-gray-600 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-lg border border-gray-600/50"
@@ -435,7 +435,7 @@ export default function ChatPage({ onBack, initialMessage, username, onLogout, h
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
           <div className={`flex items-center mb-8 cursor-pointer hover:opacity-80 transition-opacity ${
             isSidebarCollapsed ? 'justify-center mt-8' : ''
           }`} onClick={onBack}>
@@ -549,7 +549,7 @@ export default function ChatPage({ onBack, initialMessage, username, onLogout, h
               <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
               历史会话
             </h3>
-            <div className="space-y-1 max-h-64 overflow-y-auto custom-scrollbar">
+            <div className="space-y-1 max-h-96 overflow-y-auto custom-scrollbar">
               {historySessions.map((session) => (
                 <div 
                   key={session.id}
@@ -601,7 +601,7 @@ export default function ChatPage({ onBack, initialMessage, username, onLogout, h
 
         {/* User Info */}
         {!isSidebarCollapsed && (
-        <div className="mt-auto p-6 border-t border-gray-700/50 transition-opacity duration-300">
+        <div className="flex-shrink-0 p-6 border-t border-gray-700/50 transition-opacity duration-300 bg-gray-800/90">
           <div className="flex items-center">
             <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-3 shadow-lg">
               <span className="text-white text-sm font-bold">U</span>
@@ -624,7 +624,9 @@ export default function ChatPage({ onBack, initialMessage, username, onLogout, h
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${
+        isSidebarCollapsed ? 'ml-16' : 'ml-64'
+      }`}>
         {/* Header */}
         <div className="bg-gray-800/90 backdrop-blur-sm border-b border-gray-700/50 px-6 py-5 shadow-lg">
           <div className="flex items-center">
