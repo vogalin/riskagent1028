@@ -775,8 +775,8 @@ ${agent.description}
       <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${
         isSidebarCollapsed ? 'ml-16' : 'ml-64'
       }`}>
-        {/* Header */}
-        <div className="bg-gray-800/90 backdrop-blur-sm border-b border-gray-700/50 px-6 py-5 shadow-lg">
+        {/* Header - Sticky */}
+        <div className="sticky top-0 bg-gray-800/90 backdrop-blur-sm border-b border-gray-700/50 px-6 py-5 shadow-lg z-20">
           <div className="flex items-center">
             <div className={`w-8 h-8 bg-gradient-to-r ${agent.gradient} rounded-xl mr-4 shadow-lg`}></div>
             <span className="text-xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">{agent.name}</span>
