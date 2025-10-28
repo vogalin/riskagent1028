@@ -425,25 +425,39 @@ export default function AgentMarketplace({ onBack, onStartAgent, historySessions
         <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
           <div className={`flex items-center mb-8 cursor-pointer hover:opacity-80 transition-opacity ${
             isSidebarCollapsed ? 'justify-center' : ''
-          }`} onClick={onBack}>
-            <img src="/Vector copy.png" alt="RiskAgent Logo" className="w-10 h-10 mr-3" />
+          }`} onClick={onBack} title={isSidebarCollapsed ? 'RiskAgent' : ''}>
+            <img
+              src="/Vector copy.png"
+              alt="RiskAgent Logo"
+              className={`transition-all duration-300 ${
+                isSidebarCollapsed ? 'w-8 h-8' : 'w-10 h-10 mr-3'
+              }`}
+            />
             {!isSidebarCollapsed && <span className="text-xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">RiskAgent</span>}
           </div>
           
           <nav className="space-y-2">
             <button
               onClick={onBack}
-              className={`flex items-center w-full px-4 py-3 text-gray-200 hover:bg-blue-900/30 hover:text-blue-400 rounded-xl transition-all duration-200 hover:scale-105 ${
-                isSidebarCollapsed ? 'justify-center' : ''
+              title={isSidebarCollapsed ? '新会话' : ''}
+              className={`group relative flex items-center w-full text-gray-200 hover:bg-blue-900/30 hover:text-blue-400 rounded-xl transition-all duration-200 hover:scale-105 ${
+                isSidebarCollapsed ? 'justify-center px-3 py-3' : 'px-4 py-3'
               }`}
             >
-              <MessageSquare className="h-5 w-5 mr-3" />
+              <MessageSquare className={`h-5 w-5 transition-all duration-200 ${
+                isSidebarCollapsed ? '' : 'mr-3'
+              }`} />
               {!isSidebarCollapsed && '新会话'}
             </button>
-            <div className={`flex items-center w-full px-4 py-3 bg-gradient-to-r from-blue-900/30 to-indigo-900/30 text-blue-400 rounded-xl border border-blue-600/50 shadow-sm ${
-              isSidebarCollapsed ? 'justify-center' : ''
-            }`}>
-              <Grid3X3 className="h-5 w-5 mr-3" />
+            <div
+              title={isSidebarCollapsed ? 'Agent广场' : ''}
+              className={`group relative flex items-center w-full bg-gradient-to-r from-blue-900/30 to-indigo-900/30 text-blue-400 rounded-xl border border-blue-600/50 shadow-sm ${
+                isSidebarCollapsed ? 'justify-center px-3 py-3' : 'px-4 py-3'
+              }`}
+            >
+              <Grid3X3 className={`h-5 w-5 transition-all duration-200 ${
+                isSidebarCollapsed ? '' : 'mr-3'
+              }`} />
               {!isSidebarCollapsed && 'Agent广场'}
             </div>
           </nav>
@@ -588,11 +602,21 @@ export default function AgentMarketplace({ onBack, onStartAgent, historySessions
         </div>
 
         {/* User Info Section - Sticky Bottom */}
-        {!isSidebarCollapsed && (
-          <div className="flex-shrink-0 border-t border-gray-700/50 bg-gray-800/95 backdrop-blur-sm">
-            <div className="p-6">
-              {isLoggedIn ? (
-                <div className="transition-opacity duration-300">
+        <div className="flex-shrink-0 border-t border-gray-700/50 bg-gray-800/95 backdrop-blur-sm">
+          <div className={`transition-all duration-300 ${
+            isSidebarCollapsed ? 'p-3' : 'p-6'
+          }`}>
+            {isLoggedIn ? (
+              <div className="transition-opacity duration-300">
+                {isSidebarCollapsed ? (
+                  <button
+                    onClick={handleLogout}
+                    title={`${username || '用户'} - 退出登录`}
+                    className="w-full flex items-center justify-center p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-lg hover:scale-105 transition-all duration-200 hover:shadow-xl"
+                  >
+                    <User className="h-5 w-5 text-white" />
+                  </button>
+                ) : (
                   <div className="flex items-center">
                     <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-3 shadow-lg flex-shrink-0">
                       <User className="h-5 w-5 text-white" />
@@ -608,19 +632,24 @@ export default function AgentMarketplace({ onBack, onStartAgent, historySessions
                       </button>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <button
-                  onClick={handleLogin}
-                  className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl transition-all duration-200 hover:scale-105 shadow-lg font-medium"
-                >
-                  <User className="h-5 w-5 mr-2" />
-                  登录
-                </button>
-              )}
-            </div>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={handleLogin}
+                title={isSidebarCollapsed ? '登录' : ''}
+                className={`w-full flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl transition-all duration-200 hover:scale-105 shadow-lg font-medium ${
+                  isSidebarCollapsed ? 'p-2' : 'px-4 py-3'
+                }`}
+              >
+                <User className={`h-5 w-5 ${
+                  isSidebarCollapsed ? '' : 'mr-2'
+                }`} />
+                {!isSidebarCollapsed && '登录'}
+              </button>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
       {/* Main Content */}
