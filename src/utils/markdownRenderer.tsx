@@ -211,20 +211,6 @@ def analyze_traffic(data):
 - 付费后立即卸载
 - 异常退款申请
 
-### 代码示例
-
-识别风险用户的核心逻辑：
-
-\`\`\`javascript
-function identifyRiskUsers(users) {
-  return users.filter(user => {
-    return user.inactiveDays > 7 ||
-           user.refundRate > 0.3 ||
-           user.suspiciousActivity;
-  });
-}
-\`\`\`
-
 ### 行动计划
 
 详细的优化方案已同步至**项目管理系统**，请查看[任务列表](https://example.com/tasks)跟进执行。
